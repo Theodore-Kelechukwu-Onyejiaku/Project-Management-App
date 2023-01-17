@@ -16,7 +16,7 @@ colors_1.default.enable();
 const app = (0, express_1.default)();
 app.use("/graphql", (0, express_graphql_1.graphqlHTTP)({
     schema: schema_1.schema,
-    rootValue: schema_1.root,
+    rootValue: Object.assign(Object.assign({}, schema_1.root), schema_1.mutation),
     graphiql: process.env.NODE_ENV === "development"
 }));
 exports.default = app;
