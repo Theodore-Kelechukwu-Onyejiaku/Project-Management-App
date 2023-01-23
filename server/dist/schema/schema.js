@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.schema = exports.mutation = exports.root = void 0;
 const graphql_1 = require("graphql");
+const axios_1 = __importDefault(require("axios"));
 const Project_1 = __importDefault(require("../models/Project"));
 const Client_1 = __importDefault(require("../models/Client"));
 // root Query (for queries)
@@ -32,17 +33,24 @@ exports.root = {
     projects: () => {
         return Project_1.default.find();
     },
+    randomUsers: ({ num }) => __awaiter(void 0, void 0, void 0, function* () {
+    })
 };
 // for mutations 
 exports.mutation = {
     // add client
-    addClient: ({ name, email, phone }) => __awaiter(void 0, void 0, void 0, function* () {
+    addClient: ({ name, email, phone, gender }) => __awaiter(void 0, void 0, void 0, function* () {
+        const randomUser = yield axios_1.default.get(`https://randomuser.me/api/?gender=${gender}`);
+        const { data: { results } } = yield randomUser;
+        console.log(results[0]);
         const client = new Client_1.default({
-            name, email, phone
+            name, email, phone, gender,
+            picture: results[0].picture.medium,
+            street: results[0].location.street.number + " " + results[0].location.street.name,
+            country: results[0].location.country,
+            age: results[0].dob.age,
         });
-        yield client.save();
-        console.log("The client".cyan, client);
-        return client;
+        return yield client.save();
     }),
     // delete client
     deleteClient: ({ id }) => __awaiter(void 0, void 0, void 0, function* () {
@@ -54,7 +62,6 @@ exports.mutation = {
             name, description, status, clientId
         });
         yield project.save();
-        console.log("The project".cyan, project);
         return project;
     }),
     // delete project
@@ -63,16 +70,8 @@ exports.mutation = {
     }),
     updateProject: ({ id, name, description, status }) => __awaiter(void 0, void 0, void 0, function* () {
         return yield Project_1.default.findByIdAndUpdate(id, { $set: { name, description, status } }, { new: true });
-    })
+    }),
 };
-var RGBType = new graphql_1.GraphQLEnumType({
-    name: 'RGB',
-    values: {
-        RED: { value: 0 },
-        GREEN: { value: 1 },
-        BLUE: { value: 2 }
-    }
-});
 // creating Schemas
 exports.schema = (0, graphql_1.buildSchema)(`
     enum Status {
@@ -80,12 +79,21 @@ exports.schema = (0, graphql_1.buildSchema)(`
           inProgress
           completed
     }
+    enum Gender {
+        male
+        female
+    }
 
     type Client {
          id: ID
          name: String
          email: String
+         gender: String
          phone: String
+         picture: String
+         street: String
+         country: String
+         age: String
     }
     type Project {
         id: ID
@@ -103,7 +111,7 @@ exports.schema = (0, graphql_1.buildSchema)(`
     }
     
     type Mutation {
-        addClient(name: String!, email: String!, phone: String!) : Client
+        addClient(name: String!, email: String!, phone: String!, gender: Gender!) : Client
         deleteClient(id:String!): Client
         addProject(name: String!, description: String!, status: Status, clientId: String) : Project
         deleteProject(id: String!): Project

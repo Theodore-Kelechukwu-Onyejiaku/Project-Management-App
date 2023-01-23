@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const ProjectSchema = new mongoose.Schema({
     name: { type: String },
     description: { type: String },
-    status: { type: String, enum: ["Not Started", "In Progress", "Completed"] },
+    status: { type: String, enum: ["notStarted", "inProgress", "completed"] },
     clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client" }
 })
 
