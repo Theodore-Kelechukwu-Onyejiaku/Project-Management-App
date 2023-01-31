@@ -13,6 +13,7 @@ const ClientSchema = new mongoose_1.default.Schema({
     street: { type: String },
     country: { type: String },
     age: { type: String },
+    random: { type: String }
 });
 const ClientModel = mongoose_1.default.model("Client", ClientSchema);
 exports.default = ClientModel;

@@ -9,6 +9,7 @@ const ClientSchema = new mongoose.Schema({
     street: { type: String },
     country: { type: String },
     age: { type: String },
+    random: { type: String }
 })
 
 const ClientModel = mongoose.model("Client", ClientSchema)

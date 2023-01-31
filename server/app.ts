@@ -11,7 +11,7 @@ dotenv.config();
 colors.enable()
 // connect Database
 connectDB().catch((error: Error) => { console.log(error) });
-console.log(path.join(__dirname, 'frontend', 'build', "index.html"))
+console.log(path.join(__dirname, "../../frontend/build", "index.html"))
 const app = express();
 app.use(cors())
 app.use("/graphql", graphqlHTTP({
@@ -19,8 +19,9 @@ app.use("/graphql", graphqlHTTP({
     rootValue: { ...root, ...mutation },
     graphiql: process.env.NODE_ENV === "development"
 }))
-app.get("*", async (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'build', "index.html"))
+app.use(express.static(path.join(__dirname, "../../frontend/build")))
+app.get("*", async (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, "../../frontend/build", "index.html"))
 })
 
 

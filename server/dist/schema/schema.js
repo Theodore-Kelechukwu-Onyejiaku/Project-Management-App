@@ -34,6 +34,15 @@ exports.root = {
         return projects;
     }),
 };
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateString(length) {
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 // for mutations 
 exports.mutation = {
     // add client
@@ -41,12 +50,14 @@ exports.mutation = {
         try {
             const randomUser = yield axios_1.default.get(`https://randomuser.me/api/?gender=${gender}`);
             const { data: { results } } = yield randomUser;
+            const random = generateString(5);
             const client = new Client_1.default({
                 name, email, phone, gender,
                 picture: results[0].picture.medium,
                 street: results[0].location.street.number + " " + results[0].location.street.name,
                 country: results[0].location.country,
                 age: results[0].dob.age,
+                random
             });
             return yield client.save();
         }
@@ -66,8 +77,9 @@ exports.mutation = {
     // add project
     addProject: ({ name, description, client }) => __awaiter(void 0, void 0, void 0, function* () {
         const theClient = yield Client_1.default.findById(client);
+        const random = generateString(5);
         const project = new Project_1.default({
-            name, description, client
+            name, description, client, random
         });
         yield project.save();
         yield project.populate("client");
@@ -107,12 +119,14 @@ exports.schema = (0, graphql_1.buildSchema)(`
          street: String
          country: String
          age: String
+         random: String
     }
     type Project {
         id: ID
         name: String
         description: String
         status: String
+        random: String
         client: Client
     }
 

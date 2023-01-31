@@ -45,6 +45,17 @@ interface Project {
     client?: ObjectId
 }
 
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function generateString(length: number) {
+    let result = "";
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+}
 // for mutations 
 export const mutation = {
     // add client
@@ -52,12 +63,14 @@ export const mutation = {
         try {
             const randomUser = await axios.get(`https://randomuser.me/api/?gender=${gender}`)
             const { data: { results } } = await randomUser
+            const random = generateString(5)
             const client = new ClientModel({
                 name, email, phone, gender,
                 picture: results[0].picture.medium,
                 street: results[0].location.street.number + " " + results[0].location.street.name,
                 country: results[0].location.country,
                 age: results[0].dob.age,
+                random
             })
 
             return await client.save()
@@ -78,8 +91,10 @@ export const mutation = {
     // add project
     addProject: async ({ name, description, client }: Project) => {
         const theClient = await ClientModel.findById(client)
+        const random = generateString(5)
+
         const project = new ProjectModel({
-            name, description, client
+            name, description, client, random
         })
         await project.save();
         await project.populate("client")
@@ -121,12 +136,14 @@ export const schema = buildSchema(`
          street: String
          country: String
          age: String
+         random: String
     }
     type Project {
         id: ID
         name: String
         description: String
         status: String
+        random: String
         client: Client
     }
 

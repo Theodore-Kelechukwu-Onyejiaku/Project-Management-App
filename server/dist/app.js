@@ -24,7 +24,7 @@ dotenv_1.default.config();
 colors_1.default.enable();
 // connect Database
 (0, db_1.default)().catch((error) => { console.log(error); });
-console.log(path_1.default.join(__dirname, 'frontend', 'build', "index.html"));
+console.log(path_1.default.join(__dirname, "../../frontend/build", "index.html"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use("/graphql", (0, express_graphql_1.graphqlHTTP)({
@@ -32,7 +32,8 @@ app.use("/graphql", (0, express_graphql_1.graphqlHTTP)({
     rootValue: Object.assign(Object.assign({}, schema_1.root), schema_1.mutation),
     graphiql: process.env.NODE_ENV === "development"
 }));
+app.use(express_1.default.static(path_1.default.join(__dirname, "../../frontend/build")));
 app.get("*", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.sendFile(path_1.default.join(__dirname, 'frontend', 'build', "index.html"));
+    res.sendFile(path_1.default.join(__dirname, "../../frontend/build", "index.html"));
 }));
 exports.default = app;
