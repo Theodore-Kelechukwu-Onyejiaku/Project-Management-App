@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { useMutation } from "@apollo/client"
-import { Interface } from "readline"
 import { ADD_CLIENT } from "../mutations/clientMutations"
 import { GET_CLIENTS } from "../queries/clientQueries"
-import { ClientInterface } from "../assets/interfaces";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateClient() {
     enum Gender {
@@ -21,10 +21,21 @@ export default function CreateClient() {
     const [formData, setFormData] = useState<UserI>({ name: "", email: "", phone: "", gender: null })
     const [addClient, { data, error, loading }] = useMutation(ADD_CLIENT)
 
+    const navigate = useNavigate()
+
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault()
+        if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.gender) {
+            return toast.error("Please fill all form fields", { position: 'top-center' })
+        }
+        if (!/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.email)) {
+            toast.error("Email is incorrect. Please enter an email that is valid.", { position: 'top-center' }) 
+            return
+        }
         addClient({
-            variables: { "name": formData.name, "email": formData.email, "phone": formData.phone, "gender": formData.gender },
+            variables: { "name": formData.name.trim(), "email": formData.email.trim(), "phone": formData.phone.trim(), "gender": formData.gender },
+            onCompleted: (data) => { navigate("/"); toast.success("Client added Successfully ", { position: "top-center" }); },
+            onError: (error) => { toast.error(error.message, { position: 'top-center' }) },
             update(cache, { data: { addClient } }) {
                 const { clients }: any = cache.readQuery({
                     query: GET_CLIENTS
@@ -36,7 +47,7 @@ export default function CreateClient() {
                         clients: [...clients, addClient]
                     }
                 })
-            }
+            },
         })
 
     }
@@ -48,7 +59,6 @@ export default function CreateClient() {
     }
 
     if (loading) return <div>Loading...</div>
-    if (error) return <div><span>error</span></div>
 
     return (
         <div className="add-client h-screen overflow-hidden">
@@ -66,7 +76,7 @@ export default function CreateClient() {
                         <label className="label">Email</label>
                     </div>
                     <div className="input-box">
-                        <input onChange={handleChange} name="phone" value={formData.phone} className="input" placeholder="Phone" />
+                        <input  onChange={handleChange} name="phone" value={formData.phone} className="input" placeholder="Phone" />
                         <label className="label">Phone</label>
                     </div>
                     <div className="flex flex-col relative border mb-5">

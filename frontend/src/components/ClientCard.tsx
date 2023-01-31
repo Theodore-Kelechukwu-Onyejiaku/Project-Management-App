@@ -7,26 +7,15 @@ import { FaRegEye } from "react-icons/fa";
 import { DELETE_CLIENT } from "../mutations/clientMutations";
 import { GET_CLIENTS } from "../queries/clientQueries";
 import Context from "../assets/context/context";
+import { GET_PROJECTS } from "../queries/projectQueries";
 
 
 export default function ClientCard({ client }: { client: ClientInterface }) {
-    const { bodyClicked, setBodyClicked } = useContext(Context)
     const [deleteClient, { data, loading, error }] = useMutation(DELETE_CLIENT)
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
         deleteClient({
             variables: { "id": client.id },
-            update(cache, { data }) {
-                const { clients }: any = cache.readQuery({
-                    query: GET_CLIENTS
-                });
-                cache.writeQuery({
-                    query: GET_CLIENTS,
-                    data: {
-                        clients: clients.filter((client: ClientInterface) => client.id !== data.deleteClient.id)
-                    }
-                })
-                console.log(clients)
-            }
+            refetchQueries: [{query: GET_CLIENTS}, {query: GET_PROJECTS}],
         })
     }
 

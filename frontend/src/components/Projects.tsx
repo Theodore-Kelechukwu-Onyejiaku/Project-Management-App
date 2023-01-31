@@ -10,7 +10,7 @@ export default function Projects() {
     return (
         <div className='my-10'>
             <h1 className="my-5 mx-5 font-bold text-3xl">Projects</h1>
-            <div className='mx-5 grid grid-cols-2 gap-x-10 gap-y-10'>
+            <div className='mx-5 grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-10'>
                 {data.projects.length ? data.projects.map((project: ProjectInterface) => (
                     <ProjectCard key={project.id} project={project} />))
                     :

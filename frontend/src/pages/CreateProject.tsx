@@ -1,24 +1,32 @@
-import { useMutation, useQuery } from "@apollo/client";
 import React, { useRef, useState } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import { ClientInterface, ProjectI } from "../assets/interfaces";
 import { ADD_PROJECT } from "../mutations/projectMutations";
 import { GET_CLIENTS } from "../queries/clientQueries"
 import { GET_PROJECTS } from "../queries/projectQueries";
+import { toast } from "react-toastify"
+import { useNavigate } from "react-router-dom";
 
 
 export default function CreateProject({ client }: { client: any }) {
+    const navigate = useNavigate();
     const [addProject, { data: addedProject, loading: addProjectLoading, error: addProjectError }] = useMutation(ADD_PROJECT);
     const { data: clients, loading: clientsLoading, error: clientError } = useQuery(GET_CLIENTS);
     const { data: projects, loading: projectsLoading, error: projectError } = useQuery(GET_PROJECTS)
     const selectRef = useRef<HTMLSelectElement | null>(null)
 
- 
+
 
     const [formData, setFormData] = useState<ProjectI>({ name: "", description: "", client: "" })
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault()
+        if(!formData.name || !formData.description || !formData.client){
+            return toast.error("Please fill all form fields", { position: 'top-center' })
+        }
         addProject({
             variables: { "name": formData.name, "description": formData.description, "client": formData.client },
+            onCompleted: (data) => { navigate("/"); toast.success("Project Successfully Added! ", { position: "top-center" }); },
+            onError: (error) => { toast.error(error.message, { position: 'top-center' }) },
             update(cache, { data: { addProject } }) {
                 const { projects }: any = cache.readQuery({
                     query: GET_PROJECTS
@@ -43,7 +51,6 @@ export default function CreateProject({ client }: { client: any }) {
     }
 
     if (addProjectLoading) return <div>Loading...</div>
-    if (addProjectError) return <div>Error...</div>
     if (clientsLoading) return <div>Loading Clients...</div>
     if (clientError) return <div>Error loading clients.</div>
     if (projectsLoading) return <div>Loading Clients...</div>
@@ -64,7 +71,7 @@ export default function CreateProject({ client }: { client: any }) {
                         <textarea onChange={handleChange} name="description" maxLength={200} className="h-36 w-full my-3 p-2" placeholder="Enter Project Description">
 
                         </textarea>
-                        <p className="absolute text-xs right-0 bottom-0"><span className={`${formData.description.length >= 200 ? "text-red-500" : "" }`}>{formData.description.length}/200</span></p>
+                        <p className="absolute text-xs right-0 bottom-0"><span className={`${formData.description.length >= 200 ? "text-red-500" : ""}`}>{formData.description.length}/200</span></p>
                     </div>
 
                     <div className="flex flex-col relative mb-5">

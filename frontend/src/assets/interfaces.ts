@@ -24,6 +24,7 @@ export interface ProjectInterface {
 }
 
 export interface ProjectI {
+    id?: string
     name: string,
     description: string,
     client?: string | undefined,
