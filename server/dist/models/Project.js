@@ -5,10 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const ProjectSchema = new mongoose_1.default.Schema({
-    name: { type: String },
-    description: { type: String },
-    status: { type: String, enum: ["notStarted", "inProgress", "completed"] },
-    clientId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Client" }
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    status: { type: String, enum: ["notStarted", "inProgress", "completed"], default: "notStarted", required: true },
+    client: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Client", required: true }
 });
 const ProjectModel = mongoose_1.default.model("Project", ProjectSchema);
 exports.default = ProjectModel;

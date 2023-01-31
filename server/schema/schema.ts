@@ -3,6 +3,7 @@ import axios from "axios"
 
 import ProjectModel from "../models/Project"
 import ClientModel from "../models/Client"
+import { ObjectId } from "mongoose"
 
 // root Query (for queries)
 export const root = {
@@ -12,14 +13,14 @@ export const root = {
     clients: () => {
         return ClientModel.find()
     },
-    project: ({ id }: { id: string }) => {
-        const project = ProjectModel.findById(id);
-        const client = ClientModel.findById(id);
-        return { ...project, "client": client }
+    project: async ({ id }: { id: string }) => {
+        const project = await ProjectModel.findById(id).populate("client");
+        return project
     },
 
-    projects: () => {
-        return ProjectModel.find()
+    projects: async () => {
+        let projects = await ProjectModel.find().populate("client");
+        return projects
     },
     randomUsers: async ({ num }: { num: string }) => {
 
@@ -43,37 +44,43 @@ interface Project {
     id?: string
     name: string,
     description: string,
-    status: string,
-    clientId?: string
+    status?: string,
+    client?: ObjectId
 }
 
 // for mutations 
 export const mutation = {
     // add client
     addClient: async ({ name, email, phone, gender }: Person) => {
-        const randomUser = await axios.get(`https://randomuser.me/api/?gender=${gender}`)
-        const { data: { results } } = await randomUser
-        console.log(results[0])
-        const client = new ClientModel({
-            name, email, phone, gender,
-            picture: results[0].picture.medium,
-            street: results[0].location.street.number + " " + results[0].location.street.name,
-            country: results[0].location.country,
-            age: results[0].dob.age,
-        })
+        try {
+            const randomUser = await axios.get(`https://randomuser.me/api/?gender=${gender}`)
+            const { data: { results } } = await randomUser
+            const client = new ClientModel({
+                name, email, phone, gender,
+                picture: results[0].picture.medium,
+                street: results[0].location.street.number + " " + results[0].location.street.name,
+                country: results[0].location.country,
+                age: results[0].dob.age,
+            })
 
-        return await client.save()
+            return await client.save()
+        } catch (error) {
+            throw error
+        }
+
     },
     // delete client
     deleteClient: async ({ id }: { id: string }) => {
         return await ClientModel.findByIdAndRemove(id)
     },
     // add project
-    addProject: async ({ name, description, status, clientId }: Project) => {
+    addProject: async ({ name, description, client }: Project) => {
+        const theClient = await ClientModel.findById(client)
         const project = new ProjectModel({
-            name, description, status, clientId
+            name, description, client
         })
         await project.save();
+        await project.populate("client")
         return project;
     },
     // delete project
@@ -114,7 +121,7 @@ export const schema = buildSchema(`
         name: String
         description: String
         status: String
-        clientId: String
+        client: Client
     }
 
     type Query{
@@ -127,7 +134,7 @@ export const schema = buildSchema(`
     type Mutation {
         addClient(name: String!, email: String!, phone: String!, gender: Gender!) : Client
         deleteClient(id:String!): Client
-        addProject(name: String!, description: String!, status: Status, clientId: String) : Project
+        addProject(name: String!, description: String!, client: String!) : Project
         deleteProject(id: String!): Project
         updateProject(id: String!, name: String, description: String, status: Status) : Project
     }

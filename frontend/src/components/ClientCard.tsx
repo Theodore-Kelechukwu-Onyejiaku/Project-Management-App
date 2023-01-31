@@ -1,12 +1,57 @@
-import { useState } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
+import { useMutation } from "@apollo/client";
 import { ClientInterface } from "../assets/interfaces";
 import { SlOptionsVertical } from "react-icons/sl";
+import { CiTrash } from "react-icons/ci";
+import { FaRegEye } from "react-icons/fa";
+import { DELETE_CLIENT } from "../mutations/clientMutations";
+import { GET_CLIENTS } from "../queries/clientQueries";
+import Context from "../assets/context/context";
+
 
 export default function ClientCard({ client }: { client: ClientInterface }) {
-    
+    const { bodyClicked, setBodyClicked } = useContext(Context)
+    const [deleteClient, { data, loading, error }] = useMutation(DELETE_CLIENT)
+    const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+        deleteClient({
+            variables: { "id": client.id },
+            update(cache, { data }) {
+                const { clients }: any = cache.readQuery({
+                    query: GET_CLIENTS
+                });
+                cache.writeQuery({
+                    query: GET_CLIENTS,
+                    data: {
+                        clients: clients.filter((client: ClientInterface) => client.id !== data.deleteClient.id)
+                    }
+                })
+                console.log(clients)
+            }
+        })
+    }
+
+    const [showOptions, setShowOptions] = useState<boolean>(false);
+    const card = useRef<HTMLDivElement | null>(null);
+    const optionButton = useRef<HTMLButtonElement | null>(null);
+
+    useEffect(() => {
+        const handleClick = (event: any) => {
+            if (optionButton.current?.contains(event.target as Node)) {
+                return null
+            }
+            else if (document.contains(event.target as Node)) {
+                setShowOptions(false)
+            }
+        }
+        document.body.addEventListener("click", handleClick)
+
+        return () => {
+            document.body.removeEventListener("click", handleClick)
+        }
+    })
 
     return (
-        <div className="w-full h-80 overflow-hidden border rounded-md p-5 shadow-md flex flex-col bg-white relative">
+        <div key={client.id} ref={card} className="w-full h-80 overflow-hidden border rounded-md p-5 shadow-md flex flex-col bg-white wave-bg relative">
             <div className="flex  justify-between">
                 <div className="mb-5">
                     <img className="rounded-full w-14 h-14" src={client.picture} alt="avatar" />
@@ -17,8 +62,20 @@ export default function ClientCard({ client }: { client: ClientInterface }) {
                     </span>
                     <span>{"("}{client.country}{")"}</span>
                 </div>
-                <div>
-                    <SlOptionsVertical color="grey" />
+                <div className="relative">
+                    <button ref={optionButton}>
+                        <SlOptionsVertical color="grey" className=" cursor-pointer" onClick={() => { setShowOptions(!showOptions) }} />
+                    </button>
+                    <div className={`${showOptions ? " opacity-100 " : " opacity-0 invisible absolute  "} flex flex-col border absolute bg-white right-3  my-2 w-24 font-thin z-40 transition-all duration-500`}>
+                        <button className="p-2 border-b flex items-center justify-between text-green-600 cursor-pointer hover:bg-slate-100">
+                            <span>view</span>
+                            <FaRegEye />
+                        </button>
+                        <button onClick={handleDelete} className="p-2 flex items-center justify-between text-red-600 cursor-pointer hover:bg-slate-100">
+                            <span >delete</span>
+                            <CiTrash />
+                        </button>
+                    </div>
                 </div>
             </div>
             <div className="flex">

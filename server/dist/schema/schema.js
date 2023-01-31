@@ -25,14 +25,14 @@ exports.root = {
     clients: () => {
         return Client_1.default.find();
     },
-    project: ({ id }) => {
-        const project = Project_1.default.findById(id);
-        const client = Client_1.default.findById(id);
-        return Object.assign(Object.assign({}, project), { "client": client });
-    },
-    projects: () => {
-        return Project_1.default.find();
-    },
+    project: ({ id }) => __awaiter(void 0, void 0, void 0, function* () {
+        const project = yield Project_1.default.findById(id).populate("client");
+        return project;
+    }),
+    projects: () => __awaiter(void 0, void 0, void 0, function* () {
+        let projects = yield Project_1.default.find().populate("client");
+        return projects;
+    }),
     randomUsers: ({ num }) => __awaiter(void 0, void 0, void 0, function* () {
     })
 };
@@ -40,28 +40,34 @@ exports.root = {
 exports.mutation = {
     // add client
     addClient: ({ name, email, phone, gender }) => __awaiter(void 0, void 0, void 0, function* () {
-        const randomUser = yield axios_1.default.get(`https://randomuser.me/api/?gender=${gender}`);
-        const { data: { results } } = yield randomUser;
-        console.log(results[0]);
-        const client = new Client_1.default({
-            name, email, phone, gender,
-            picture: results[0].picture.medium,
-            street: results[0].location.street.number + " " + results[0].location.street.name,
-            country: results[0].location.country,
-            age: results[0].dob.age,
-        });
-        return yield client.save();
+        try {
+            const randomUser = yield axios_1.default.get(`https://randomuser.me/api/?gender=${gender}`);
+            const { data: { results } } = yield randomUser;
+            const client = new Client_1.default({
+                name, email, phone, gender,
+                picture: results[0].picture.medium,
+                street: results[0].location.street.number + " " + results[0].location.street.name,
+                country: results[0].location.country,
+                age: results[0].dob.age,
+            });
+            return yield client.save();
+        }
+        catch (error) {
+            throw error;
+        }
     }),
     // delete client
     deleteClient: ({ id }) => __awaiter(void 0, void 0, void 0, function* () {
         return yield Client_1.default.findByIdAndRemove(id);
     }),
     // add project
-    addProject: ({ name, description, status, clientId }) => __awaiter(void 0, void 0, void 0, function* () {
+    addProject: ({ name, description, client }) => __awaiter(void 0, void 0, void 0, function* () {
+        const theClient = yield Client_1.default.findById(client);
         const project = new Project_1.default({
-            name, description, status, clientId
+            name, description, client
         });
         yield project.save();
+        yield project.populate("client");
         return project;
     }),
     // delete project
@@ -100,7 +106,7 @@ exports.schema = (0, graphql_1.buildSchema)(`
         name: String
         description: String
         status: String
-        clientId: String
+        client: Client
     }
 
     type Query{
@@ -113,7 +119,7 @@ exports.schema = (0, graphql_1.buildSchema)(`
     type Mutation {
         addClient(name: String!, email: String!, phone: String!, gender: Gender!) : Client
         deleteClient(id:String!): Client
-        addProject(name: String!, description: String!, status: Status, clientId: String) : Project
+        addProject(name: String!, description: String!, client: String!) : Project
         deleteProject(id: String!): Project
         updateProject(id: String!, name: String, description: String, status: Status) : Project
     }

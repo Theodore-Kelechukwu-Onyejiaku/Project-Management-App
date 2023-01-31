@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
 const ClientSchema = new mongoose.Schema({
-    name: { type: String },
-    gender: { type: String, enum: ["male", "female"] },
-    email: { type: String },
-    phone: { type: String },
-    picture: { type: String },
+    name: { type: String, required: true },
+    gender: { type: String, enum: ["male", "female"], required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    picture: { type: String, required: true },
     street: { type: String },
     country: { type: String },
     age: { type: String },
