@@ -22,9 +22,6 @@ export const root = {
         let projects = await ProjectModel.find().populate("client");
         return projects
     },
-    randomUsers: async ({ num }: { num: string }) => {
-
-    }
 }
 
 // Person Interface
@@ -71,6 +68,11 @@ export const mutation = {
     },
     // delete client
     deleteClient: async ({ id }: { id: string }) => {
+        ProjectModel.find({ client: id }).then(projects => {
+            projects.forEach(project => {
+                project.remove()
+            })
+        })
         return await ClientModel.findByIdAndRemove(id)
     },
     // add project
@@ -85,10 +87,14 @@ export const mutation = {
     },
     // delete project
     deleteProject: async ({ id }: { id: string }) => {
-        return await ProjectModel.findByIdAndRemove(id)
+        const deletedProject = await ProjectModel.findByIdAndRemove(id);
+        await deletedProject?.populate("client")
+        return deletedProject
     },
     updateProject: async ({ id, name, description, status }: Project) => {
-        return await ProjectModel.findByIdAndUpdate(id, { $set: { name, description, status } }, { new: true })
+        let updatedProject = await ProjectModel.findByIdAndUpdate(id, { $set: { name, description, status } }, { new: true });
+        await updatedProject?.populate("client");
+        return updatedProject
     },
 }
 

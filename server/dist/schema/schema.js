@@ -33,8 +33,6 @@ exports.root = {
         let projects = yield Project_1.default.find().populate("client");
         return projects;
     }),
-    randomUsers: ({ num }) => __awaiter(void 0, void 0, void 0, function* () {
-    })
 };
 // for mutations 
 exports.mutation = {
@@ -58,6 +56,11 @@ exports.mutation = {
     }),
     // delete client
     deleteClient: ({ id }) => __awaiter(void 0, void 0, void 0, function* () {
+        Project_1.default.find({ client: id }).then(projects => {
+            projects.forEach(project => {
+                project.remove();
+            });
+        });
         return yield Client_1.default.findByIdAndRemove(id);
     }),
     // add project
@@ -72,10 +75,14 @@ exports.mutation = {
     }),
     // delete project
     deleteProject: ({ id }) => __awaiter(void 0, void 0, void 0, function* () {
-        return yield Project_1.default.findByIdAndRemove(id);
+        const deletedProject = yield Project_1.default.findByIdAndRemove(id);
+        yield (deletedProject === null || deletedProject === void 0 ? void 0 : deletedProject.populate("client"));
+        return deletedProject;
     }),
     updateProject: ({ id, name, description, status }) => __awaiter(void 0, void 0, void 0, function* () {
-        return yield Project_1.default.findByIdAndUpdate(id, { $set: { name, description, status } }, { new: true });
+        let updatedProject = yield Project_1.default.findByIdAndUpdate(id, { $set: { name, description, status } }, { new: true });
+        yield (updatedProject === null || updatedProject === void 0 ? void 0 : updatedProject.populate("client"));
+        return updatedProject;
     }),
 };
 // creating Schemas
