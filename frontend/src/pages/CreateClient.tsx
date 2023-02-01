@@ -37,10 +37,19 @@ export default function CreateClient() {
             variables: { "name": formData.name.trim(), "email": formData.email.trim(), "phone": formData.phone.trim(), "gender": formData.gender },
             onCompleted: (data) => {
                 navigate("/");
-                toast.success("Client added Successfully ", { position: "top-center" });
+                toast.success("Client added Successfully ", { position: "top-center", autoClose: 1000, });
                 setTimeout(() => {
-                    alert("Please save this code, you will need it incase you want to delete this user. Thanks \n Code: " + data.addClient.random)
-                }, 2000)
+                    toast.info("Please save the code below, you will need it incase you want to delete this new user you just created. Thanks \n Code: " + data.addClient.random, {
+                        position: "top-center",
+                        autoClose: false,
+                        hideProgressBar: false,
+                        closeOnClick: false,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
+                }, 5000)
             },
             onError: (error) => { toast.error(error.message, { position: 'top-center' }) },
             update(cache, { data: { addClient } }) {

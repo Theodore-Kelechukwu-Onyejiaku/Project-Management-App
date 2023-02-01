@@ -3,10 +3,21 @@ import { CiTrash } from "react-icons/ci";
 import { useMutation } from "@apollo/client";
 import { DELETE_CLIENT } from "../mutations/clientMutations";
 import { GET_CLIENTS } from "../queries/clientQueries";
+import { toast } from "react-toastify"
+import { FaRegEye } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function ClientRow({ client }: { client: ClientInterface }) {
     const [deleteClient, { data, loading, error }] = useMutation(DELETE_CLIENT,)
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+        let answer: string;
+        answer = prompt("Please enter the code to delete this user") as string
+        if (!answer) return
+        if (answer !== client.random) {
+            toast.error("This user cannot be deleted as the code provided is incorrect or you were not the creator!",
+                { position: "top-center" })
+            return
+        }
         deleteClient({
             variables: { "id": client.id },
             update(cache, { data }) {
@@ -19,8 +30,11 @@ export default function ClientRow({ client }: { client: ClientInterface }) {
                         clients: clients.filter((client: ClientInterface) => client.id !== data.deleteClient.id)
                     }
                 })
-                console.log(clients)
-            }
+            },
+            onCompleted: () => {
+                toast.success("User Deleted Successfully! ", { position: "top-center" })
+            },
+            onError: (error) => { toast.error(error.message, { position: 'top-center' }) },
         })
     }
     return (
@@ -34,7 +48,7 @@ export default function ClientRow({ client }: { client: ClientInterface }) {
             <td className="border-b border-r border-slate-300 px-4 font-thin">{client.email}</td>
             <td className="border-b border-r border-slate-300 px-4 font-thin">{client.phone}</td>
             <td className="border-b border-r border-slate-300 px-4 font-thin">{client.country}</td>
-            <td className="border-b border-r border-slate-300 px-4 font-thin"><button onClick={handleDelete}><CiTrash /></button></td>
+            <td className="border-b border-r border-slate-300 px-4 font-thin tex-center"><button onClick={handleDelete}><CiTrash /></button><Link to={`/client/${client.id}`} className="ml-3 inline-block"><FaRegEye /></Link></td>
         </tr>
     )
 }

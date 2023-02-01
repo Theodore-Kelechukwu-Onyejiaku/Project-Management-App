@@ -10,6 +10,7 @@ import { DELETE_PROJECT } from "../mutations/projectMutations";
 import React from "react";
 import { ProjectInterface } from "../assets/interfaces";
 import { toast } from "react-toastify"
+import LoadingProject from "../components/LoadingProject";
 
 
 export default function Project() {
@@ -18,7 +19,7 @@ export default function Project() {
     const { data, error, loading } = useQuery(GET_SINGLE_PROJECT, { variables: { id } })
     const [deleteProject, { data: deleteProjectData, loading: deleteProjectLoading, error: deleteProjectError }] = useMutation(DELETE_PROJECT)
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <LoadingProject/>
     if (error) return <div>Error... {error.message}</div>
 
     const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -53,9 +54,9 @@ export default function Project() {
         <div className="my-10">
             {data.project ?
                 <div className="flex flex-col justify-evenly sm:flex-row space-x-0 sm:space-x-10 sm:justify-center">
-                    <div className="flex flex-col justify-center items-center">
+                    <div className="flex flex-col mx-5 justify-center items-center">
 
-                        <div className="circle-bg w-96 mx-5 p-5 shadow-md border">
+                        <div className="circle-bg w-full mx-5 p-5 shadow-md border">
                             <div className="flex justify-end">
                                 <Link to="/" className="border p-2 w-32 bg-orange-400 text-white rounded-md shadow-md flex items-center">
                                     <IoIosArrowRoundBack />
@@ -88,7 +89,7 @@ export default function Project() {
 
                             </div>
                             <button onClick={handleDelete} className="border p-2 w-32 bg-red-400 text-white rounded-md shadow-md mt-5 bottom-0 flex items-center justify-between"><span>Delete</span> <CiTrash /></button>
-                         </div>
+                        </div>
                     </div>
                     <UpdateProject project={data.project} />
                 </div> : <div><Navigate to="/404"></Navigate></div>}

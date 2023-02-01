@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound"
 import CreateClient from "./pages/CreateClient";
 import { Link, Routes, Route } from "react-router-dom"
 import Project from "./pages/Project";
+import Client from "./pages/Client";
 import CreateProject from "./pages/CreateProject";
 import Context from "./assets/context/context";
 
@@ -45,8 +46,8 @@ const cache = new InMemoryCache({
 })
 
 const client = new ApolloClient({
-  uri: "/graphql",
-  // uri: "http://localhost:5000/graphql",
+  // uri: "/graphql",
+  uri: "http://localhost:5000/graphql",
   cache // add the created cache here
 })
 
@@ -60,6 +61,7 @@ function App() {
           <Route path='/' element={<Layout />} >
             <Route index element={<Home />} />
             <Route path="/project/:id" element={<Project />} />
+            <Route path="/client/:id" element={<Client/>}/>
             <Route path="/create-client" element={<CreateClient />} />
             <Route path="/create-project" element={<CreateProject client={client} />} />
             <Route path="/404" element={<NotFound />} />

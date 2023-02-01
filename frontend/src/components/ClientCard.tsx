@@ -1,4 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useMutation } from "@apollo/client";
 import { ClientInterface } from "../assets/interfaces";
 import { SlOptionsVertical } from "react-icons/sl";
@@ -17,12 +18,16 @@ export default function ClientCard({ client }: { client: ClientInterface }) {
         answer = prompt("Please enter the code to delete this user") as string
         if (!answer) return
         if (answer !== client.random) {
-            toast.error("This project cannot be deleted as the code provided is incorrect!",
+            toast.error("This user cannot be deleted as the code provided is incorrect or you were not the creator!",
                 { position: "top-center" })
             return
         }
         deleteClient({
             variables: { "id": client.id },
+            onCompleted: () => {
+                toast.success("User Deleted Successfully! ", { position: "top-center" })
+            },
+            onError: (error) => { toast.error(error.message, { position: 'top-center' }) },
             refetchQueries: [{ query: GET_CLIENTS }, { query: GET_PROJECTS }],
         })
     }
@@ -64,10 +69,10 @@ export default function ClientCard({ client }: { client: ClientInterface }) {
                         <SlOptionsVertical color="grey" className=" cursor-pointer" onClick={() => { setShowOptions(!showOptions) }} />
                     </button>
                     <div className={`${showOptions ? " opacity-100 " : " opacity-0 invisible absolute  "} flex flex-col border absolute bg-white right-3  my-2 w-24 font-thin z-40 transition-all duration-500`}>
-                        <button className="p-2 border-b flex items-center justify-between text-green-600 cursor-pointer hover:bg-slate-100">
+                        <Link to={`/client/${client.id}`} className="p-2 border-b flex items-center justify-between text-green-600 cursor-pointer hover:bg-slate-100">
                             <span>view</span>
                             <FaRegEye />
-                        </button>
+                        </Link>
                         <button onClick={handleDelete} className="p-2 flex items-center justify-between text-red-600 cursor-pointer hover:bg-slate-100">
                             <span >delete</span>
                             <CiTrash />
