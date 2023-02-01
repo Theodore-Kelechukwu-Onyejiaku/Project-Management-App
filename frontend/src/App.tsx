@@ -45,7 +45,8 @@ const cache = new InMemoryCache({
 })
 
 const client = new ApolloClient({
-  uri: "http://localhost:5000/graphql",
+  uri: "/graphql",
+  // uri: "http://localhost:5000/graphql",
   cache // add the created cache here
 })
 
@@ -54,7 +55,7 @@ function App() {
 
   return (
     <ApolloProvider client={client}>
-      <Context.Provider value={{bodyClicked, setBodyClicked}}>
+      <Context.Provider value={{ bodyClicked, setBodyClicked }}>
         <Routes>
           <Route path='/' element={<Layout />} >
             <Route index element={<Home />} />
