@@ -53,10 +53,10 @@ export default function Project() {
     return (
         <div className="my-10">
             {data.project ?
-                <div className="flex flex-col justify-evenly sm:flex-row space-x-0 sm:space-x-10 sm:justify-center">
-                    <div className="flex flex-col mx-5 justify-center items-center">
+                <div className="flex flex-col justify-evenly sm:flex-row space-x-0 sm:space-x-1 sm:justify-center">
+                    <div className="flex flex-col mx-3 sm:mx-5 justify-center items-center">
 
-                        <div className="circle-bg w-full mx-5 p-5 shadow-md border">
+                        <div className="circle-bg rounded-lg w-full sm:w-96  mx-5 p-2 shadow-md border">
                             <div className="flex justify-end">
                                 <Link to="/" className="border p-2 w-32 bg-orange-400 text-white rounded-md shadow-md flex items-center">
                                     <IoIosArrowRoundBack />

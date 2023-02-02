@@ -68,9 +68,8 @@ export default function CreateProject({ client }: { client: any }) {
 
     if (addProjectLoading) return <Loading />
     if (clientsLoading) return <div>Loading Clients...</div>
-    if (clientError) return <div>Error loading clients.</div>
     if (projectsLoading) return <div>Loading Project...</div>
-    if (projectError) return <div>Error loading project.</div>
+    // if (projectError) return <div>Error loading project.</div>
 
     return (
         <div className="add-client h-screen overflow-hidden">
@@ -92,12 +91,15 @@ export default function CreateProject({ client }: { client: any }) {
 
                     <div className="flex flex-col relative mb-5">
                         <label>Client</label>
+                        {clients?.clients?.length ?
+
                         <select ref={selectRef} onChange={handleSelect} name="client" className="p-2 my-1">
                             <option>_Select Client_</option>
-                            {clients.clients.map((client: ClientInterface) => (
-                                <option value={client.id}>{client.name}</option>
-                            ))}
+                                {clients.clients.map((client: ClientInterface) => (
+                                    <option value={client.id}>{client.name}</option>
+                                )) }
                         </select>
+                        :<div className="p-2 my-1 border border-red-800 text-red-500 text-center">Clients cannot be loaded</div>}
                     </div>
                     <button className="border p-2 w-32 bg-orange-400 text-white rounded-md shadow-md">Add</button>
                 </form>

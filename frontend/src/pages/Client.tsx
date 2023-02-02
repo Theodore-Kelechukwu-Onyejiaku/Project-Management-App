@@ -12,7 +12,7 @@ export default function Client() {
     if (error) return <div>Error </div>
 
     return (
-        <div className=''>
+        <div className='my-20'>
             <div className='flex px-5 sm:px-0 flex-col items-center justify-center'>
                 <div className="w-full sm:w-1/2 border rounded-md p-10 shadow-md flex flex-col bg-white wave-bg relative">
                     <div className="flex justify-end">

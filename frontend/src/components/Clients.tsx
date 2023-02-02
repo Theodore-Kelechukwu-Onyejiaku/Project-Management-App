@@ -9,6 +9,7 @@ import { RxCaretDown, RxCaretUp } from "react-icons/rx"
 import { CiSearch } from "react-icons/ci"
 import Display from "./Display"
 import Loading from "./Loading"
+import ErrorComponent from "./ErrorComponent"
 
 export default function Clients() {
     const { data, loading, error } = useQuery(GET_CLIENTS);
@@ -44,7 +45,7 @@ export default function Clients() {
     }, [])
 
     if (loading) return <Loading />
-    if (error) return <div>Error...</div>
+    if (error) return <ErrorComponent type="client" message="Error Loading Clients" error={error}/>
     return (
         <>
             <div className="">
